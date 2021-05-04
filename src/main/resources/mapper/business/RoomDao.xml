@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fish.business.dao.RoomDao">
+
+    <!-- 实体类映射 -->
+    <resultMap id="BaseResultMap" type="com.fish.business.domain.Room">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="room_number" jdbcType="INTEGER" property="roomNumber"/>
+        <result column="room_name" jdbcType="VARCHAR" property="roomName"/>
+        <result column="room_state" jdbcType="INTEGER" property="roomState"/>
+        <result column="create_user_id" jdbcType="INTEGER" property="createUserId"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="create_name" jdbcType="VARCHAR" property="createName"/>
+    </resultMap>
+
+    <!-- 所有字段 -->
+    <sql id="Base_Column_List">
+        id, room_number, room_name, room_state, create_user_id, create_time
+    </sql>
+
+    <!-- 联表查询创建人名称语句 -->
+    <sql id="allColumn">
+        SELECT id,
+               room_number,
+               room_name,
+               room_state,
+               create_user_id,
+               create_time,
+               sysu.user_name as create_name
+        FROM bus_room room
+        LEFT JOIN sys_user sysu
+        ON room.create_user_id = sysu.user_id
+    </sql>
+
+    <!-- 查询 -->
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from bus_room
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+    <!-- 根据房间号查询房间信息 -->
+    <select id="selectRoomInfoByNumber" parameterType="integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from bus_room
+        where room_number = #{roomNumber,jdbcType=INTEGER}
+    </select>
+
+    <!-- 根据条件查询房间信息 -->
+    <select id="selectRoomInfoByList" parameterType="com.fish.business.domain.Room" resultMap="BaseResultMap">
+        <include refid="allColumn"/>
+        <where>
+            <if test="roomNumber != null and roomNumber !=''">
+                and room_number like concat("%",#{roomNumber},"%")
+            </if>
+            <if test="roomName != null and roomName !=''">
+                and room_name like concat("%",#{roomName},"%")
+            </if>
+            <if test="roomState != null">
+                and room_state = #{roomState}
+            </if>
+        </where>
+    </select>
+
+    <!-- 删除 -->
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        delete
+        from bus_room
+        where id = #{id,jdbcType=INTEGER}
+    </delete>
+
+    <!-- 添加 -->
+    <insert id="insert" parameterType="com.fish.business.domain.Room">
+        insert into bus_room (id, room_number, room_name,
+                              room_state, create_user_id, create_time)
+        values (#{id,jdbcType=INTEGER}, #{roomNumber,jdbcType=INTEGER}, #{roomName,jdbcType=VARCHAR},
+                #{roomState,jdbcType=INTEGER}, #{createUserId,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP})
+    </insert>
+
+    <!-- 根据条件添加 -->
+    <insert id="insertSelective" parameterType="com.fish.business.domain.Room">
+        insert into bus_room
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="roomNumber != null">
+                room_number,
+            </if>
+            <if test="roomName != null">
+                room_name,
+            </if>
+            <if test="roomState != null">
+                room_state,
+            </if>
+            <if test="createUserId != null">
+                create_user_id,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="roomNumber != null">
+                #{roomNumber,jdbcType=INTEGER},
+            </if>
+            <if test="roomName != null">
+                #{roomName,jdbcType=VARCHAR},
+            </if>
+            <if test="roomState != null">
+                #{roomState,jdbcType=INTEGER},
+            </if>
+            <if test="createUserId != null">
+                #{createUserId,jdbcType=INTEGER},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+
+    <!-- 根据条件修改 -->
+    <update id="updateByPrimaryKeySelective" parameterType="com.fish.business.domain.Room">
+        update bus_room
+        <set>
+            <if test="roomNumber != null">
+                room_number = #{roomNumber,jdbcType=INTEGER},
+            </if>
+            <if test="roomName != null">
+                room_name = #{roomName,jdbcType=VARCHAR},
+            </if>
+            <if test="roomState != null">
+                room_state = #{roomState,jdbcType=INTEGER},
+            </if>
+            <if test="createUserId != null">
+                create_user_id = #{createUserId,jdbcType=INTEGER},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <!-- 修改 -->
+    <update id="updateByPrimaryKey" parameterType="com.fish.business.domain.Room">
+        update bus_room
+        set room_number    = #{roomNumber,jdbcType=INTEGER},
+            room_name      = #{roomName,jdbcType=VARCHAR},
+            room_state     = #{roomState,jdbcType=INTEGER},
+            create_user_id = #{createUserId,jdbcType=INTEGER},
+            create_time    = #{createTime,jdbcType=TIMESTAMP}
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+</mapper>

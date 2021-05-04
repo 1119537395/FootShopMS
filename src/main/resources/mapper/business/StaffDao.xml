@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fish.business.dao.StaffDao">
+
+  <!-- 员工实体类映射  -->
+  <resultMap id="BaseResultMap" type="com.fish.business.domain.Staff">
+    <id column="staff_id" jdbcType="INTEGER" property="staffId" />
+    <result column="staff_number" jdbcType="INTEGER" property="staffNumber"/>
+    <result column="staff_name" jdbcType="VARCHAR" property="staffName" />
+    <result column="staff_sex" jdbcType="INTEGER" property="staffSex" />
+    <result column="staff_phone" jdbcType="VARCHAR" property="staffPhone" />
+    <result column="staff_work_state" jdbcType="INTEGER" property="staffWorkState" />
+    <result column="staff_service_state" jdbcType="INTEGER" property="staffServiceState" />
+    <result column="staff_create_time" jdbcType="TIMESTAMP" property="staffCreateTime" />
+    <result column="create_user_id" jdbcType="INTEGER" property="createUserId" />
+    <result column="create_name" jdbcType="VARCHAR" property="createName"/>
+  </resultMap>
+
+  <!-- 全部数据库字段 -->
+  <sql id="Base_Column_List">
+    staff_id,staff_number,staff_name, staff_sex, staff_phone, staff_work_state, staff_service_state,
+    staff_create_time, create_user_id
+  </sql>
+
+  <!-- 查询创建人的名称 -->
+  <sql id="allColumn">
+    SELECT staff_id,
+           staff_number,
+           staff_name,
+           staff_sex,
+           staff_phone,
+           staff_work_state,
+           staff_service_state,
+           staff_create_time,
+           create_user_id,
+           sysu.user_name as create_name
+    FROM bus_staff as bs
+    LEFT JOIN sys_user as sysu
+    ON bs.create_user_id = sysu.user_id
+  </sql>
+
+  <!-- 根据ID查询员工信息 -->
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from bus_staff
+    where staff_id = #{staffId,jdbcType=INTEGER}
+  </select>
+
+  <!-- 根据条件查询所有的员工信息 -->
+  <select id="selectStaffInfoByList" parameterType="com.fish.business.domain.Staff" resultMap="BaseResultMap">
+    <include refid="allColumn"/>
+    <where>
+      <if test="staffName !=null and staffName !=''">
+        and staff_name like concat("%",#{staffName},"%")
+      </if>
+      <if test="staffPhone != null and staffPhone != ''">
+        and staff_phone like concat("%",#{staffPhone},"%")
+      </if>
+      <if test="staffServiceState != null">
+        and staff_service_state = #{staffServiceState}
+      </if>
+      <if test="staffWorkState != null">
+        and staff_work_state = #{staffWorkState}
+      </if>
+      <if test="staffNumber !=null">
+        and staff_number = #{staffNumber}
+      </if>
+    </where>
+  </select>
+
+  <!-- 根据工号查询员工信息 -->
+  <select id="selectStaffInfoByNumber" parameterType="integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from bus_staff
+    where staff_number = #{staffNumber,jdbcType=INTEGER}
+  </select>
+
+  <!-- 根据ID删除员工信息 -->
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from bus_staff
+    where staff_id = #{staffId,jdbcType=INTEGER}
+  </delete>
+
+
+  <insert id="insert" parameterType="com.fish.business.domain.Staff">
+    insert into bus_staff (staff_id,staff_number, staff_name, staff_sex,
+      staff_phone, staff_work_state, staff_service_state,
+      staff_create_time, create_user_id)
+    values (#{staffId,jdbcType=INTEGER},#{staffNumber},#{staffName,jdbcType=VARCHAR}, #{staffSex,jdbcType=INTEGER},
+      #{staffPhone,jdbcType=VARCHAR}, #{staffWorkState,jdbcType=INTEGER}, #{staffServiceState,jdbcType=INTEGER},
+      #{staffCreateTime,jdbcType=TIMESTAMP}, #{createUserId,jdbcType=INTEGER})
+  </insert>
+
+  <insert id="insertSelective" parameterType="com.fish.business.domain.Staff">
+    insert into bus_staff
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="staffId != null">
+        staff_id,
+      </if>
+        <if test="staffNumber !=null">
+            staff_number,
+        </if>
+      <if test="staffName != null">
+        staff_name,
+      </if>
+      <if test="staffSex != null">
+        staff_sex,
+      </if>
+      <if test="staffPhone != null">
+        staff_phone,
+      </if>
+      <if test="staffWorkState != null">
+        staff_work_state,
+      </if>
+      <if test="staffServiceState != null">
+        staff_service_state,
+      </if>
+      <if test="staffCreateTime != null">
+        staff_create_time,
+      </if>
+      <if test="createUserId != null">
+        create_user_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="staffId != null">
+        #{staffId,jdbcType=INTEGER},
+      </if>
+      <if test="staffNumber != null">
+          #{staffNumber},
+      </if>
+      <if test="staffName != null">
+        #{staffName,jdbcType=VARCHAR},
+      </if>
+      <if test="staffSex != null">
+        #{staffSex,jdbcType=INTEGER},
+      </if>
+      <if test="staffPhone != null">
+        #{staffPhone,jdbcType=VARCHAR},
+      </if>
+      <if test="staffWorkState != null">
+        #{staffWorkState,jdbcType=INTEGER},
+      </if>
+      <if test="staffServiceState != null">
+        #{staffServiceState,jdbcType=INTEGER},
+      </if>
+      <if test="staffCreateTime != null">
+        #{staffCreateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUserId != null">
+        #{createUserId,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+
+  <update id="updateByPrimaryKeySelective" parameterType="com.fish.business.domain.Staff">
+    update bus_staff
+    <set>
+      <if test="staffName != null">
+        staff_name = #{staffName,jdbcType=VARCHAR},
+      </if>
+      <if test="staffNumber != null">
+          staff_number = #{staffNumber},
+      </if>
+      <if test="staffSex != null">
+        staff_sex = #{staffSex,jdbcType=INTEGER},
+      </if>
+      <if test="staffPhone != null">
+        staff_phone = #{staffPhone,jdbcType=VARCHAR},
+      </if>
+      <if test="staffWorkState != null">
+        staff_work_state = #{staffWorkState,jdbcType=INTEGER},
+      </if>
+      <if test="staffServiceState != null">
+        staff_service_state = #{staffServiceState,jdbcType=INTEGER},
+      </if>
+      <if test="staffCreateTime != null">
+        staff_create_time = #{staffCreateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUserId != null">
+        create_user_id = #{createUserId,jdbcType=INTEGER},
+      </if>
+    </set>
+    where staff_id = #{staffId,jdbcType=INTEGER}
+  </update>
+
+  <update id="updateByPrimaryKey" parameterType="com.fish.business.domain.Staff">
+    update bus_staff
+    set staff_number = #{staffNumber},
+      staff_name = #{staffName,jdbcType=VARCHAR},
+      staff_sex = #{staffSex,jdbcType=INTEGER},
+      staff_phone = #{staffPhone,jdbcType=VARCHAR},
+      staff_work_state = #{staffWorkState,jdbcType=INTEGER},
+      staff_service_state = #{staffServiceState,jdbcType=INTEGER},
+      staff_create_time = #{staffCreateTime,jdbcType=TIMESTAMP},
+      create_user_id = #{createUserId,jdbcType=INTEGER}
+    where staff_id = #{staffId,jdbcType=INTEGER}
+  </update>
+
+</mapper>

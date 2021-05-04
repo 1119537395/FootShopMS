@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fish.business.dao.OrderDao">
+
+    <!-- 实体类映射 -->
+    <resultMap id="BaseResultMap" type="com.fish.business.domain.Order">
+        <id column="order_id" jdbcType="VARCHAR" property="orderId"/>
+        <result column="cust_id" jdbcType="INTEGER" property="custId"/>
+        <result column="room_id" jdbcType="INTEGER" property="roomId"/>
+        <result column="staff_id" jdbcType="INTEGER" property="staffId"/>
+        <result column="pedicure_id" jdbcType="INTEGER" property="pedicureId"/>
+        <result column="charge_amount" jdbcType="DECIMAL" property="chargeAmount"/>
+        <result column="order_state" jdbcType="INTEGER" property="orderState"/>
+        <result column="order_info" jdbcType="VARCHAR" property="orderInfo"/>
+        <result column="oper_name" jdbcType="VARCHAR" property="operName"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="cust_name" property="custName"/>
+        <result column="cust_phone" property="custPhone"/>
+        <result column="room_number" property="roomNumber"/>
+        <result column="staff_name" property="staffName"/>
+        <result column="pedicure_name" property="pedicureName"/>
+    </resultMap>
+
+    <!-- 数据库字段 -->
+    <sql id="Base_Column_List">
+        order_id, cust_id, room_id, staff_id, pedicure_id, charge_amount, order_state, order_info,
+    oper_name, create_time
+    </sql>
+
+    <!-- 关联表查询 -->
+    <sql id="allColumn">
+        SELECT o1.order_id,
+               o1.cust_id,
+               o1.room_id,
+               o1.staff_id,
+               o1.pedicure_id,
+               o1.charge_amount,
+               o1.order_state,
+               o1.order_info,
+               o1.oper_name,
+               o1.create_time,
+               c1.cust_name     as cust_name,
+               c1.cust_phone    as cust_phone,
+               r1.room_number   as room_number,
+               s1.staff_name    as staff_name,
+               p1.pedicure_name as pedicure_name
+        FROM bus_order o1
+                 LEFT JOIN bus_customer c1
+                           ON o1.cust_id = c1.cust_id
+                 LEFT JOIN bus_room r1
+                           ON o1.room_id = r1.id
+                 LEFT JOIN bus_staff s1
+                           ON o1.staff_id = s1.staff_id
+                 LEFT JOIN bus_pedicure p1
+                           ON o1.pedicure_id = p1.pedicure_id
+    </sql>
+
+    <!-- 查询订单信息 -->
+    <select id="selectOrderInfoByList" parameterType="com.fish.business.domain.Order" resultMap="BaseResultMap">
+        <include refid="allColumn"/>
+        <where>
+            <if test="orderId != null">
+                and order_id like concat("%",#{orderId},"%")
+            </if>
+            <if test="custId != null and custId != 0">
+                and o1.cust_id = #{custId}
+            </if>
+        </where>
+    </select>
+
+
+    <!-- 查询 -->
+    <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from bus_order
+        where order_id = #{orderId,jdbcType=VARCHAR}
+    </select>
+
+    <!-- 删除 -->
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+        delete
+        from bus_order
+        where order_id = #{orderId,jdbcType=VARCHAR}
+    </delete>
+
+    <!-- 添加 -->
+    <insert id="insert" parameterType="com.fish.business.domain.Order">
+        insert into bus_order (order_id, cust_id, room_id,
+                               staff_id, pedicure_id, charge_amount,
+                               order_state, order_info, oper_name,
+                               create_time)
+        values (#{orderId,jdbcType=VARCHAR}, #{custId,jdbcType=INTEGER}, #{roomId,jdbcType=INTEGER},
+                #{staffId,jdbcType=INTEGER}, #{pedicureId,jdbcType=INTEGER}, #{chargeAmount,jdbcType=DECIMAL},
+                #{orderState,jdbcType=INTEGER}, #{orderInfo,jdbcType=VARCHAR}, #{operName,jdbcType=VARCHAR},
+                #{createTime,jdbcType=TIMESTAMP})
+    </insert>
+
+    <!-- 添加 -->
+    <insert id="insertSelective" parameterType="com.fish.business.domain.Order">
+        insert into bus_order
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="orderId != null">
+                order_id,
+            </if>
+            <if test="custId != null">
+                cust_id,
+            </if>
+            <if test="roomId != null">
+                room_id,
+            </if>
+            <if test="staffId != null">
+                staff_id,
+            </if>
+            <if test="pedicureId != null">
+                pedicure_id,
+            </if>
+            <if test="chargeAmount != null">
+                charge_amount,
+            </if>
+            <if test="orderState != null">
+                order_state,
+            </if>
+            <if test="orderInfo != null">
+                order_info,
+            </if>
+            <if test="operName != null">
+                oper_name,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="orderId != null">
+                #{orderId,jdbcType=VARCHAR},
+            </if>
+            <if test="custId != null">
+                #{custId,jdbcType=INTEGER},
+            </if>
+            <if test="roomId != null">
+                #{roomId,jdbcType=INTEGER},
+            </if>
+            <if test="staffId != null">
+                #{staffId,jdbcType=INTEGER},
+            </if>
+            <if test="pedicureId != null">
+                #{pedicureId,jdbcType=INTEGER},
+            </if>
+            <if test="chargeAmount != null">
+                #{chargeAmount,jdbcType=DECIMAL},
+            </if>
+            <if test="orderState != null">
+                #{orderState,jdbcType=INTEGER},
+            </if>
+            <if test="orderInfo != null">
+                #{orderInfo,jdbcType=VARCHAR},
+            </if>
+            <if test="operName != null">
+                #{operName,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+
+    <!-- 更新 -->
+    <update id="updateByPrimaryKeySelective" parameterType="com.fish.business.domain.Order">
+        update bus_order
+        <set>
+            <if test="custId != null">
+                cust_id = #{custId,jdbcType=INTEGER},
+            </if>
+            <if test="roomId != null">
+                room_id = #{roomId,jdbcType=INTEGER},
+            </if>
+            <if test="staffId != null">
+                staff_id = #{staffId,jdbcType=INTEGER},
+            </if>
+            <if test="pedicureId != null">
+                pedicure_id = #{pedicureId,jdbcType=INTEGER},
+            </if>
+            <if test="chargeAmount != null">
+                charge_amount = #{chargeAmount,jdbcType=DECIMAL},
+            </if>
+            <if test="orderState != null">
+                order_state = #{orderState,jdbcType=INTEGER},
+            </if>
+            <if test="orderInfo != null">
+                order_info = #{orderInfo,jdbcType=VARCHAR},
+            </if>
+            <if test="operName != null">
+                oper_name = #{operName,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where order_id = #{orderId,jdbcType=VARCHAR}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.fish.business.domain.Order">
+        update bus_order
+        set cust_id       = #{custId,jdbcType=INTEGER},
+            room_id       = #{roomId,jdbcType=INTEGER},
+            staff_id      = #{staffId,jdbcType=INTEGER},
+            pedicure_id   = #{pedicureId,jdbcType=INTEGER},
+            charge_amount = #{chargeAmount,jdbcType=DECIMAL},
+            order_state   = #{orderState,jdbcType=INTEGER},
+            order_info    = #{orderInfo,jdbcType=VARCHAR},
+            oper_name     = #{operName,jdbcType=VARCHAR},
+            create_time   = #{createTime,jdbcType=TIMESTAMP}
+        where order_id = #{orderId,jdbcType=VARCHAR}
+    </update>
+</mapper>

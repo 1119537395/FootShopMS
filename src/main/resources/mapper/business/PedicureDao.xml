@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fish.business.dao.PedicureDao">
+
+    <!-- 足疗项目实体类映射 -->
+    <resultMap id="BaseResultMap" type="com.fish.business.domain.Pedicure">
+        <id column="pedicure_id" jdbcType="INTEGER" property="pedicureId"/>
+        <result column="pedicure_name" jdbcType="VARCHAR" property="pedicureName"/>
+        <result column="pedicure_content" jdbcType="VARCHAR" property="pedicureContent"/>
+        <result column="charge_type" jdbcType="VARCHAR" property="chargeType"/>
+        <result column="service_time" jdbcType="INTEGER" property="serviceTime"/>
+        <result column="pedicure_charge_type" jdbcType="VARCHAR" property="pedicureChargeType"/>
+        <result column="pedicure_charge_amount" jdbcType="DECIMAL" property="pedicureChargeAmount"/>
+        <result column="pedicure_state" jdbcType="INTEGER" property="pedicureState"/>
+        <result column="pedicure_info" jdbcType="VARCHAR" property="pedicureInfo"/>
+        <result column="create_user_id" jdbcType="INTEGER" property="createUserId"/>
+        <result column="pedicure_create_time" jdbcType="TIMESTAMP" property="pedicureCreateTime"/>
+        <result column="create_name" jdbcType="VARCHAR" property="createName"/>
+    </resultMap>
+
+    <!-- 全部字段 -->
+    <sql id="Base_Column_List">
+        pedicure_id, pedicure_name, pedicure_content,charge_type,service_time,pedicure_charge_type, pedicure_charge_amount,
+        pedicure_state, pedicure_info, create_user_id, pedicure_create_time
+    </sql>
+
+    <!-- 关联用户表查询出创建人名称 -->
+    <sql id="allColumn">
+        SELECT pedicure_id,
+               pedicure_name,
+               pedicure_content,
+               charge_type,
+               service_time,
+               pedicure_charge_type,
+               pedicure_charge_amount,
+               pedicure_state,
+               pedicure_info,
+               create_user_id,
+               pedicure_create_time,
+               sysu.user_name as create_name
+        FROM
+             bus_pedicure as pe
+        LEFT JOIN
+             sys_user as sysu
+        ON
+             pe.create_user_id = sysu.user_id
+    </sql>
+
+
+    <!-- 根据条件查询足疗项目信息 -->
+    <select id="selectPedicureInfoByList" parameterType="com.fish.business.domain.Pedicure" resultMap="BaseResultMap">
+        <include refid="allColumn"/>
+        <where>
+            <if test="pedicureName != null and pedicureName != ''">
+                and pedicure_name like concat("%",#{pedicureName},"%")
+            </if>
+            <if test="pedicureState !=null">
+                and pedicure_state = #{pedicureState}
+            </if>
+            <if test="pedicureContent !=null and pedicureContent !=''">
+                and pedicure_content like concat("%",#{pedicureContent},"%")
+            </if>
+        </where>
+    </select>
+
+    <!-- 查询足疗项目信息 -->
+    <select id="queryPedicureInfo" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from bus_pedicure
+        where pedicure_state = 0
+    </select>
+
+    <!-- 根据项目名称查询项目金额 -->
+    <select id="queryPedicureByName" parameterType="integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from bus_pedicure
+        where pedicure_id = #{pedicureId}
+    </select>
+
+    <!-- 查询 -->
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from bus_pedicure
+        where pedicure_id = #{pedicureId,jdbcType=INTEGER}
+    </select>
+
+    <!-- 删除 -->
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        delete
+        from bus_pedicure
+        where pedicure_id = #{pedicureId,jdbcType=INTEGER}
+    </delete>
+
+    <!-- 添加 -->
+    <insert id="insert" parameterType="com.fish.business.domain.Pedicure">
+        insert into bus_pedicure (pedicure_id, pedicure_name, pedicure_content,charge_type,service_time,
+                                  pedicure_charge_type, pedicure_charge_amount,
+                                  pedicure_state, pedicure_info, create_user_id,
+                                  pedicure_create_time)
+        values (#{pedicureId,jdbcType=INTEGER}, #{pedicureName,jdbcType=VARCHAR}, #{pedicureContent,jdbcType=VARCHAR},
+                #{chargeType},#{serviceTime},
+                #{pedicureChargeType,jdbcType=VARCHAR}, #{pedicureChargeAmount,jdbcType=DECIMAL},
+                #{pedicureState,jdbcType=INTEGER}, #{pedicureInfo,jdbcType=VARCHAR}, #{createUserId,jdbcType=INTEGER},
+                #{pedicureCreateTime,jdbcType=TIMESTAMP})
+    </insert>
+
+    <!-- 添加 -->
+    <insert id="insertSelective" parameterType="com.fish.business.domain.Pedicure">
+        insert into bus_pedicure
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="pedicureId != null">
+                pedicure_id,
+            </if>
+            <if test="pedicureName != null">
+                pedicure_name,
+            </if>
+            <if test="pedicureContent != null">
+                pedicure_content,
+            </if>
+            <if test="chargeType != null">
+                charge_type,
+            </if>
+            <if test="serviceTime != null">
+                service_time,
+            </if>
+            <if test="pedicureChargeType != null">
+                pedicure_charge_type,
+            </if>
+            <if test="pedicureChargeAmount != null">
+                pedicure_charge_amount,
+            </if>
+            <if test="pedicureState != null">
+                pedicure_state,
+            </if>
+            <if test="pedicureInfo != null">
+                pedicure_info,
+            </if>
+            <if test="createUserId != null">
+                create_user_id,
+            </if>
+            <if test="pedicureCreateTime != null">
+                pedicure_create_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="pedicureId != null">
+                #{pedicureId,jdbcType=INTEGER},
+            </if>
+            <if test="pedicureName != null">
+                #{pedicureName,jdbcType=VARCHAR},
+            </if>
+            <if test="pedicureContent != null">
+                #{pedicureContent,jdbcType=VARCHAR},
+            </if>
+            <if test="chargeType != null">
+                #{chargeType},
+            </if>
+            <if test="serviceTime != null">
+                #{serviceTime},
+            </if>
+            <if test="pedicureChargeType != null">
+                #{pedicureChargeType,jdbcType=VARCHAR},
+            </if>
+            <if test="pedicureChargeAmount != null">
+                #{pedicureChargeAmount,jdbcType=DECIMAL},
+            </if>
+            <if test="pedicureState != null">
+                #{pedicureState,jdbcType=INTEGER},
+            </if>
+            <if test="pedicureInfo != null">
+                #{pedicureInfo,jdbcType=VARCHAR},
+            </if>
+            <if test="createUserId != null">
+                #{createUserId,jdbcType=INTEGER},
+            </if>
+            <if test="pedicureCreateTime != null">
+                #{pedicureCreateTime,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+
+    <!-- 修改 -->
+    <update id="updateByPrimaryKeySelective" parameterType="com.fish.business.domain.Pedicure">
+        update bus_pedicure
+        <set>
+            <if test="pedicureName != null">
+                pedicure_name = #{pedicureName,jdbcType=VARCHAR},
+            </if>
+            <if test="pedicureContent != null">
+                pedicure_content = #{pedicureContent,jdbcType=VARCHAR},
+            </if>
+            <if test="chargeType != null">
+                charge_type = #{chargeType},
+            </if>
+            <if test="serviceTime != null">
+                service_time = #{serviceTime},
+            </if>
+            <if test="pedicureChargeType != null">
+                pedicure_charge_type = #{pedicureChargeType,jdbcType=VARCHAR},
+            </if>
+            <if test="pedicureChargeAmount != null">
+                pedicure_charge_amount = #{pedicureChargeAmount,jdbcType=DECIMAL},
+            </if>
+            <if test="pedicureState != null">
+                pedicure_state = #{pedicureState,jdbcType=INTEGER},
+            </if>
+            <if test="pedicureInfo != null">
+                pedicure_info = #{pedicureInfo,jdbcType=VARCHAR},
+            </if>
+            <if test="createUserId != null">
+                create_user_id = #{createUserId,jdbcType=INTEGER},
+            </if>
+            <if test="pedicureCreateTime != null">
+                pedicure_create_time = #{pedicureCreateTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where pedicure_id = #{pedicureId,jdbcType=INTEGER}
+    </update>
+
+    <!-- 修改 -->
+    <update id="updateByPrimaryKey" parameterType="com.fish.business.domain.Pedicure">
+        update bus_pedicure
+        set pedicure_name          = #{pedicureName,jdbcType=VARCHAR},
+            pedicure_content       = #{pedicureContent,jdbcType=VARCHAR},
+            charge_type            = #{chargeType},
+            service_time           = #{serviceTime},
+            pedicure_charge_type   = #{pedicureChargeType,jdbcType=VARCHAR},
+            pedicure_charge_amount = #{pedicureChargeAmount,jdbcType=DECIMAL},
+            pedicure_state         = #{pedicureState,jdbcType=INTEGER},
+            pedicure_info          = #{pedicureInfo,jdbcType=VARCHAR},
+            create_user_id         = #{createUserId,jdbcType=INTEGER},
+            pedicure_create_time   = #{pedicureCreateTime,jdbcType=TIMESTAMP}
+        where pedicure_id = #{pedicureId,jdbcType=INTEGER}
+    </update>
+
+
+</mapper>

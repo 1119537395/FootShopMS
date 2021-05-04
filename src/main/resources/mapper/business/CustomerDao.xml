@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fish.business.dao.CustomerDao">
+
+    <!-- 客户实体类关系映射 -->
+    <resultMap id="BaseResultMap" type="com.fish.business.domain.Customer">
+        <id column="cust_id" jdbcType="INTEGER" property="custId"/>
+        <result column="cust_name" jdbcType="VARCHAR" property="custName"/>
+        <result column="cust_phone" jdbcType="VARCHAR" property="custPhone"/>
+        <result column="cust_sex" jdbcType="INTEGER" property="custSex"/>
+        <result column="cust_address" jdbcType="VARCHAR" property="custAddress"/>
+        <result column="cust_rank" jdbcType="INTEGER" property="custRank"/>
+        <result column="createtime" jdbcType="TIMESTAMP" property="createTime"/>
+    </resultMap>
+
+    <!-- 全部字段 -->
+    <sql id="allColumn">
+        cust_id,cust_name,cust_phone,cust_sex,cust_address,cust_rank,createtime
+    </sql>
+
+    <!-- 查询客户信息 -->
+    <select id="queryCustomerDataByAll" resultMap="BaseResultMap">
+        select
+        <include refid="allColumn"/>
+        from bus_customer
+        <where>
+            <if test="custPhone != null and custPhone != ''">
+                and cust_phone like concat("%",#{custPhone},"%")
+            </if>
+            <if test="custName != null and custName !=''">
+                and cust_name like concat("%",#{custName},"%")
+            </if>
+        </where>
+    </select>
+
+    <!-- 根据客户ID查询客户信息 -->
+    <select id="queryCustomerDataById" resultMap="BaseResultMap">
+        select
+        <include refid="allColumn"/>
+        from bus_customer
+        <where>
+            <if test="custId != null">
+                and cust_id = #{custId}
+            </if>
+        </where>
+    </select>
+
+    <!-- 添加客户信息 -->
+    <insert id="insertCustomerData" parameterType="com.fish.business.domain.Customer">
+        insert into bus_customer
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="custName != null">
+                cust_name,
+            </if>
+            <if test="custPhone != null">
+                cust_phone,
+            </if>
+            <if test="custSex != null">
+                cust_sex,
+            </if>
+            <if test="custAddress != null">
+                cust_address,
+            </if>
+            <if test="custRank != null">
+                cust_rank,
+            </if>
+            <if test="createTime != null">
+                createtime,
+            </if>
+        </trim>
+        <trim prefix="value (" suffix=")" suffixOverrides=",">
+            <if test="custName != null">
+                #{custName},
+            </if>
+            <if test="custPhone != null">
+                #{custPhone},
+            </if>
+            <if test="custSex != null">
+                #{custSex},
+            </if>
+            <if test="custAddress != null">
+                #{custAddress},
+            </if>
+            <if test="custRank != null">
+                #{custRank},
+            </if>
+            <if test="createTime != null">
+                #{createTime},
+            </if>
+        </trim>
+    </insert>
+
+    <!-- 更新客户信息 -->
+    <update id="updateCustomerDataById" parameterType="com.fish.business.domain.Customer">
+        update bus_customer
+        <set>
+            <if test="custName != null">
+                cust_name = #{custName},
+            </if>
+            <if test="custSex != null">
+                cust_sex = #{custSex},
+            </if>
+            <if test="custAddress != null">
+                cust_address = #{custAddress},
+            </if>
+            <if test="custPhone != null">
+                cust_phone = #{custPhone},
+            </if>
+            <if test="custRank != null">
+                cust_rank = #{custRank},
+            </if>
+            <if test="createTime != null">
+                createtime = #{createTime},
+            </if>
+        </set>
+        where cust_id = #{custId}
+    </update>
+
+    <!-- 删除客户信息 -->
+    <delete id="deleteCustomerDataById" parameterType="integer">
+        delete from bus_customer
+        where cust_id = #{custId}
+    </delete>
+
+    <!-- 根据手机号查询客户信息 -->
+    <select id="checkCustPhone" parameterType="string" resultMap="BaseResultMap">
+        select
+            <include refid="allColumn"/>
+        from bus_customer
+        where cust_phone = #{custPhone}
+    </select>
+
+</mapper>
